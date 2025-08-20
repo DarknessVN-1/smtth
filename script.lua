@@ -223,7 +223,7 @@ for i=0,5 do task.wait(.2)
 end
 
 --Librarys
-local Library = loadstring(game:HttpGet("https://gist.githubusercontent.com/VertigoCool99/282c9e98325f6b79299c800df74b2849/raw/d9efe72dc43a11b5237a43e2de71b7038e8bb37b/library.lua"))()
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/DarknessVN-1/smtth/refs/heads/main/library.lua"))()
 
 local Window = Library:CreateWindow({Title=" Dungeon Quest",TweenTime=.15,Center=true})
    
