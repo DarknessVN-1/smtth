@@ -23,7 +23,7 @@ b.MouseButton1Click:Connect(function()f.Visible=not f.Visible end)
 -- store default speed
 local defaultSpeed = h.WalkSpeed
 
--- your functions
+-- functions
 local Functions = {}
 function Functions:GetEnemys()
     if not workspace:FindFirstChild("dungeon") then
@@ -82,11 +82,22 @@ end
 
 -- loop
 task.spawn(function()
-    while task.wait(0.1) do
+    while task.wait(0.2) do
+        local allEnemies = Functions:GetEnemys()
+        if #allEnemies == 0 then
+            log("[NO ENEMY]",Color3.fromRGB(255,100,100))
+        else
+            for _,v in pairs(allEnemies) do
+                if v:FindFirstChild("HumanoidRootPart") then
+                    local dist=(hrp.Position-v.HumanoidRootPart.Position).Magnitude
+                    log("[ENEMY] "..v.Name.." ("..math.floor(dist)..")",Color3.fromRGB(200,200,200))
+                end
+            end
+        end
+
         local e,d=Functions:GetClosestEnemy()
         if e and e:FindFirstChild("HumanoidRootPart") then
             watch(e)
-            log("[TRACK] "..e.Name.." ("..math.floor(d)..")",Color3.fromRGB(200,200,200))
             if d<12 then
                 h.WalkSpeed=28
                 h:MoveTo(hrp.Position+(hrp.Position-e.HumanoidRootPart.Position).Unit*15)
@@ -105,4 +116,4 @@ task.spawn(function()
     end
 end)
 
-log("✅ Auto Target + Dodge + Speed Ready",Color3.fromRGB(0,255,0))
+log("✅ Auto Target + Dodge + Enemy Tracking Ready",Color3.fromRGB(0,255,0))
