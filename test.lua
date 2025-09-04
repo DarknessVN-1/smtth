@@ -1,4 +1,4 @@
--- ✅ Console UI
+-- ✅ Console
 local gui = Instance.new("ScreenGui", game.CoreGui)
 local btn = Instance.new("TextButton", gui)
 btn.Size, btn.Position, btn.Text, btn.BackgroundColor3 =
@@ -20,61 +20,55 @@ local function log(t,c)
     scroll.CanvasSize = UDim2.new(0,0,0,list.AbsoluteContentSize.Y)
     scroll.CanvasPosition = Vector2.new(0, math.max(0, list.AbsoluteContentSize.Y - scroll.AbsoluteSize.Y))
 end
+
 btn.MouseButton1Click:Connect(function() frame.Visible = not frame.Visible end)
 
--- ✅ Your exact function
-Functions = {}
-function Functions:GetEnemys()
-    if not workspace:FindFirstChild("dungeon") then 
-        return workspace:FindFirstChild("enemies"):GetChildren()
+-- ✅ Enemy getter (your version)
+local function getEnemys()
+    if not workspace:FindFirstChild("dungeon") then
+        return (workspace:FindFirstChild("enemies") and workspace.enemies:GetChildren()) or {}
     end
-    for i, v in pairs(workspace.dungeon:GetChildren()) do
+    for _,v in pairs(workspace.dungeon:GetChildren()) do
         if v:FindFirstChild("enemyFolder") and v.enemyFolder:FindFirstChildOfClass("Model") then
             return v.enemyFolder:GetChildren()
         end
     end
-    return nil
+    return {}
 end
 
--- ✅ Enemy activity tracker
+-- ✅ Tracker
 local function track()
-    for _,enemy in ipairs(Functions:GetEnemys() or {}) do
-        if not enemy:FindFirstChild("ActivityWatcher") then
-            Instance.new("BoolValue",enemy).Name="ActivityWatcher"
+    for _,e in ipairs(getEnemys()) do
+        if not e:FindFirstChild("SkillWatcher") then
+            Instance.new("BoolValue",e).Name="SkillWatcher"
 
-            -- Attributes
-            enemy.AttributeChanged:Connect(function(attr)
-                log("🔧 "..enemy.Name.." Attribute "..attr.." = "..tostring(enemy:GetAttribute(attr)),Color3.fromRGB(0,200,255))
-            end)
-
-            -- Values
-            enemy.DescendantAdded:Connect(function(o)
-                if o:IsA("ValueBase") then
-                    log("📊 "..enemy.Name.." added "..o.ClassName.." "..o.Name.." = "..tostring(o.Value),Color3.fromRGB(200,255,200))
-                    o.Changed:Connect(function(val)
-                        log("📊 "..enemy.Name.." "..o.Name.." changed -> "..tostring(val),Color3.fromRGB(100,255,100))
-                    end)
+            -- same as your working one
+            e.DescendantAdded:Connect(function(o)
+                if o:IsA("Part") or o:IsA("MeshPart") or o:IsA("ParticleEmitter") then
+                    log("[SKILL] "..e.Name.." used "..o.Name,Color3.fromRGB(255,200,0))
                 end
             end)
 
-            -- Animations
-            local hum = enemy:FindFirstChildOfClass("Humanoid")
+            -- also log attribute + animator + values
+            e.AttributeChanged:Connect(function(attr)
+                log("🔧 "..e.Name.." attr "..attr.."="..tostring(e:GetAttribute(attr)),Color3.fromRGB(0,200,255))
+            end)
+
+            local hum = e:FindFirstChildOfClass("Humanoid")
             if hum and hum:FindFirstChild("Animator") then
                 hum.Animator.AnimationPlayed:Connect(function(track)
-                    log("🎬 "..enemy.Name.." played animation "..(track.Animation and track.Animation.AnimationId or "Unknown"),Color3.fromRGB(255,150,0))
+                    log("🎬 "..e.Name.." animation "..(track.Animation and track.Animation.AnimationId or "Unknown"),Color3.fromRGB(255,150,0))
                 end)
             end
-
-            log("👾 Tracking "..enemy.Name,Color3.fromRGB(200,200,255))
         end
     end
 end
 
--- ✅ Loop check
+-- ✅ Loop
 task.spawn(function()
-    while task.wait(0.2) do
+    while task.wait(1) do
         track()
     end
 end)
 
-log("✅ Enemy Tracker Initialized",Color3.fromRGB(0,255,0))
+log("✅ Enemy Skill Tracker initialized",Color3.fromRGB(0,255,0))
