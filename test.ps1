@@ -1,8 +1,5 @@
 [CmdletBinding()]
-param(
-    [Parameter()]
-    [switch]$BypassAdmin
-)
+param()
 
 $ErrorActionPreference = 'Stop'
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
@@ -13,13 +10,7 @@ function Invoke-Spicetify {
         [string[]]$Arguments
     )
     
-    $spicetifyArgs = @()
-    if ($BypassAdmin) {
-        $spicetifyArgs += "--bypass-admin"
-    }
-    $spicetifyArgs += $Arguments
-    
-    & spicetify $spicetifyArgs
+    & spicetify $Arguments
     return $LASTEXITCODE
 }
 
@@ -29,13 +20,7 @@ function Invoke-SpicetifyWithOutput {
         [string[]]$Arguments
     )
     
-    $spicetifyArgs = @()
-    if ($BypassAdmin) {
-        $spicetifyArgs += "--bypass-admin"
-    }
-    $spicetifyArgs += $Arguments
-    
-    $output = (& spicetify $spicetifyArgs 2>&1 | Out-String).Trim()
+    $output = (& spicetify $Arguments 2>&1 | Out-String).Trim()
     return @{
         Output = $output
         ExitCode = $LASTEXITCODE
